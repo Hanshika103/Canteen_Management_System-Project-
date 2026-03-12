@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Menu</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #fff8f0; margin: 0; padding: 0; }
+        h2 { text-align: center; color: #ff6600; margin-top: 20px; }
+        #menu-list { display: flex; flex-wrap: wrap; justify-content: center; margin: 20px; }
+        .menu-item { border: 1px solid #eee; border-radius: 10px; width: 200px; margin: 10px; padding: 10px; text-align: center; box-shadow: 0px 0px 10px rgba(0,0,0,0.1); }
+        .menu-item img { width: 100%; height: 150px; border-radius: 10px; object-fit: cover; }
+        .menu-item h4 { margin: 10px 0 5px; color: #ff6600; }
+        .menu-item p { margin: 5px 0; font-weight: bold; }
+        .menu-item button { background-color: #ff6600; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; }
+        .menu-item button:hover { background-color: #e65c00; }
+    </style>
+</head>
+<body>
+    <h2>Our Menu</h2>
+    <div id="menu-list">
+        <!-- Menu items will be dynamically inserted here -->
+    </div>
+
+    <script>
+        // Map some sample images for menu items (replace names with your DB item_name)
+        const foodImages = {
+            "Burger": "https://images.pexels.com/photos/31300948/pexels-photo-31300948.jpeg",
+            "Pizza": "https://cdn.pixabay.com/photo/2017/12/09/08/18/pizza-3007395_1280.jpg",
+            "Fries": "https://cdn.pixabay.com/photo/2016/03/05/19/02/french-fries-1238246_1280.jpg",
+            "Coca-Cola": "https://cdn.pixabay.com/photo/2014/12/21/23/28/cola-578914_1280.png",
+            "Sandwich": "https://cdn.pixabay.com/photo/2017/02/02/18/02/sandwich-2033317_1280.jpg",
+            "Pasta": "https://cdn.pixabay.com/photo/2015/05/29/15/04/pasta-788550_1280.jpg",
+            "Samosa": "https://cdn.pixabay.com/photo/2016/11/29/12/54/samosa-1867123_1280.jpg",
+            "Paneer Tikka": "https://cdn.pixabay.com/photo/2020/08/29/18/27/food-5523235_1280.jpg"
+        };
+
+        window.addEventListener('load', () => {
+            fetch('http://localhost:9090/Canteen_Management/MenuServlet')
+            .then(res => res.json())
+            .then(menuItems => {
+                const menuContainer = document.getElementById('menu-list');
+                menuContainer.innerHTML = '';
+
+                menuItems.forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = 'menu-item';
+                    div.innerHTML = `
+                        <img src="${foodImages[item.item_name] || 'https://via.placeholder.com/150'}" alt="${item.item_name}">
+                        <h4>${item.item_name}</h4>
+                        <p>Price: ₹${item.price}</p>
+                        <button onclick="addToCart(${item.item_id}, '${item.item_name}', ${item.price})">Add to Cart</button>
+                    `;
+                    menuContainer.appendChild(div);
+                });
+            })
+            .catch(err => console.error('Error fetching menu:', err));
+        });
+
+        // Cart array
+        let cart = JSON.parse(sessionStorage.getItem('cart')) || [];
+
+        function addToCart(item_id, item_name, price) {
+            cart.push({ item_id, item_name, price, quantity: 1 });
+            sessionStorage.setItem('cart', JSON.stringify(cart));
+            alert(item_name + ' added to cart!');
+        }
+    </script>
+</body>
+</html>
